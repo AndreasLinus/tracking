@@ -1,3 +1,6 @@
+package test
+
+import models.User
 import org.junit.jupiter.api.Test
 
 import org.junit.jupiter.api.Assertions.*
