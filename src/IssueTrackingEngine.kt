@@ -1,10 +1,11 @@
 import models.*
 import java.util.*
 
-class IssueTrackingEngine(listOfUser: MutableList<User>, listOfIssue: MutableList<Issue>) {
+class IssueTrackingEngine {
 
-     val listOfIssues: MutableList<Issue> = listOfIssue
-     val listOfUsers: MutableList<User> = listOfUser
+    val listOfIssues: MutableList<Issue> = mutableListOf()
+    val listOfUsers: MutableList<User> = mutableListOf()
+    val listOfComments: MutableList<Comment> = mutableListOf()
 
     /**
      * Adds a [Issue] to list of issues.
@@ -77,8 +78,7 @@ class IssueTrackingEngine(listOfUser: MutableList<User>, listOfIssue: MutableLis
      * @param userID the ID of the [User] that wants to comment on the [Issue]
      */
     fun addIssueComment(issueID: String, comment: String, userID: String) {
-        val issue = getIssue(issueID)
-        issue!!.listOfComments.add(Comment(issueID, userID = userID, comment = comment))
+        listOfComments.add(Comment(issueID, userID = userID, comment = comment))
     }
 
     /**
@@ -132,7 +132,7 @@ class IssueTrackingEngine(listOfUser: MutableList<User>, listOfIssue: MutableLis
         }
     }
 
-    fun getAllIssues() : MutableList<Issue>{
+    fun getAllIssues(): MutableList<Issue> {
         return listOfIssues
     }
 

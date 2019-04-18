@@ -13,7 +13,6 @@ import java.util.*
  * @property stateChangedDate when was the state last changed?
  * @property stateChangedComment comment about the change
  * @property userID the ID to whom the [Issue] belongs to
- * @property listOfComments a [List] of comments belonging to [Issue]
  */
 
 class Issue(
@@ -23,7 +22,5 @@ class Issue(
     var state: State = State.TODO,
     var stateChangedDate: MutableList<Date> = mutableListOf(),
     var stateChangedComment: String? = null,
-    var userID: String? = null,
-    val listOfComments: MutableList<Comment> = mutableListOf()
-
+    var userID: String? = null
 )
