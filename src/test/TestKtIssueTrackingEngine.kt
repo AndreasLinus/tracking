@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import java.time.Instant
 import java.util.*
-import kotlin.reflect.full.memberProperties
 
 class TestKtIssueTrackingEngine {
 
@@ -20,7 +19,7 @@ class TestKtIssueTrackingEngine {
     private val issueTitle = "Test"
     private val userName = "Steve"
     private val issueComment = "Something went wrong"
-    val issueTrackingEngine: IssueTrackingEngine = IssueTrackingEngine(listOfUsers, listOfIssues)
+    private val issueTrackingEngine: IssueTrackingEngine = IssueTrackingEngine(listOfUsers, listOfIssues)
 
     @BeforeEach
     fun clearUsersAndIssues() {
@@ -28,71 +27,49 @@ class TestKtIssueTrackingEngine {
         listOfIssues.clear()
     }
 
+    //The rest is tested below
     @Test
-    fun test() {
-        val deliminator = "-----------------------------------------"
+    fun testScenario1() {
+        //Add User
         val userID = issueTrackingEngine.addUser(userName)
         assertEquals(userID, listOfUsers.first().ID)
-        val issueID = issueTrackingEngine.addIssue(issueTitle)
-        assertEquals(issueID, listOfIssues.first().ID)
-        //Check id of issue and user
-        println("\nissue id : $issueID\nuser id : $userID")
-        println("\nIssue\n$deliminator")
-        //Assign user to issue
-        issueTrackingEngine.assignUser(userID, issueID)
-        assertEquals(userID, listOfIssues.first().userID)
-        //Check that user is the same that we assigned
-        val issue = issueTrackingEngine.getIssue(issueID)
-        //Reflection might be slow
-        if (issue != null) {
-            for (prop in Issue::class.memberProperties) {
-                println("${prop.name} = ${prop.get(issue)}")
-            }
-            println(deliminator)
-            println("\nChanged Issue\n$deliminator")
-            //Set issue state and add a comment
-            val comment = "I'm on it!"
-            issueTrackingEngine.setIssueState(issueID, State.IN_PROGRESS_STATE, comment)
-            assertEquals(State.IN_PROGRESS_STATE, listOfIssues.first().state)
-            assertEquals(comment, listOfIssues.first().stateChangedComment)
-            //Get updated issue
-            issueTrackingEngine.addIssueComment(issueID, issueComment, userID)
-            val updatedIssue = issueTrackingEngine.getIssue(issueID)
-            assertEquals(issueComment, listOfIssues.first().listOfComments.first().comment)
-            //Print the state and comment to check if it was changed
-            for (prop in Issue::class.memberProperties) {
-                if (updatedIssue != null)
-                    println("${prop.name} = ${prop.get(updatedIssue)}")
-            }
-            println(deliminator)
-        }
-
+        //Get user
         val user = issueTrackingEngine.getUser(userID)
         assertEquals(user!!.ID, userID)
-        println("\nUser\n$deliminator")
-        for (prop in User::class.memberProperties) {
-            println("${prop.name} = ${prop.get(user)}")
-        }
-        println(deliminator)
-
+        //Add Issue
+        val issueID = issueTrackingEngine.addIssue(issueTitle)
+        assertEquals(issueID, listOfIssues.first().ID)
+        //Get Issue
+        val issue = issueTrackingEngine.getIssue(issueID)
+        assertEquals(issueID, issue!!.ID)
+        //AssignUser
+        issueTrackingEngine.assignUserToIssue(userID, issueID)
+        assertEquals(userID, listOfIssues.first().userID)
+        //Set issue state
+        issueTrackingEngine.setIssueState(issueID, State.IN_PROGRESS_STATE, issueComment)
+        assertEquals(State.IN_PROGRESS_STATE, listOfIssues.first().state)
+        assertEquals(issueComment, listOfIssues.first().stateChangedComment)
+        //Add issue comment
+        issueTrackingEngine.addIssueComment(issueID, issueComment, userID)
+        val updatedIssue = issueTrackingEngine.getIssue(issueID)
+        assertEquals(this.issueComment, updatedIssue!!.listOfComments.first().comment)
+        assertEquals(userID, updatedIssue.listOfComments.first().userID)
+        //GetUsers
+        val listOfUser = issueTrackingEngine.getUsers()
+        assertEquals(issueTrackingEngine.listOfUsers, listOfUser)
+        //GetIssues
+        val listOfIssue = issueTrackingEngine.getIssues()
+        assertEquals(issueTrackingEngine.listOfIssues.size, listOfIssue.size)
         //Remove issue
         issueTrackingEngine.removeIssue(issueID)
-        //Get issue
         val removedIssue = issueTrackingEngine.getIssue(issueID)
         assertEquals(null, removedIssue)
-        //If issue is null that means that issue was removed
-        if (removedIssue == null)
-            println("Issue is removed")
-        else
-            println("Issue was not removed, remove issue doesn't work properly")
-
-
     }
 
 
-    val name1 = "Johan"
-    val name2 = "Benny"
-    val name3 = "Anna"
+    private val name1 = "Johan"
+    private val name2 = "Benny"
+    private val name3 = "Anna"
 
     private fun initUserList(): MutableList<User> {
         val user1 = User(name1)
@@ -106,10 +83,8 @@ class TestKtIssueTrackingEngine {
         return listOf(name1, name2, name3)
     }
 
-
     @Test
     fun getListOfIssues() {
-        //TODO check so that userID's are the same as well
         val userList = initUserList()
         val nameList = initNameList()
         if (nameList.size == userList.size)
@@ -169,7 +144,7 @@ class TestKtIssueTrackingEngine {
     fun assignUser() {
         val userID = issueTrackingEngine.addUser(userName)
         val issueID = issueTrackingEngine.addIssue(issueTitle)
-        issueTrackingEngine.assignUser(userID, issueID)
+        issueTrackingEngine.assignUserToIssue(userID, issueID)
         val issue = issueTrackingEngine.getIssue(issueID)
         assertEquals(issue!!.userID, userID)
     }
@@ -183,6 +158,7 @@ class TestKtIssueTrackingEngine {
         val updatedIssue = issueTrackingEngine.getIssue(issueID)
         assertEquals(issueComment, updatedIssue!!.listOfComments.first().comment)
         assertEquals(updatedIssue.listOfComments.first().issueID, issueID)
+        assertEquals(updatedIssue.listOfComments.first().userID, userID)
     }
 
     @Test
@@ -208,6 +184,8 @@ class TestKtIssueTrackingEngine {
     fun getUsers() {
         val newListOfUsers = initUserList()
         newListOfUsers.forEach { listOfUsers.add(it) }
+        val listOfUsers = issueTrackingEngine.getUsers()
+
         assertEquals(listOfUsers, newListOfUsers)
     }
 
@@ -302,7 +280,7 @@ class TestKtIssueTrackingEngine {
         val userID = issueTrackingEngine.addUser(userName)
         val issueID = issueTrackingEngine.addIssue(issueTitle)
         issueTrackingEngine.addIssue(issueTitle)
-        issueTrackingEngine.assignUser(userID, issueID)
+        issueTrackingEngine.assignUserToIssue(userID, issueID)
 
         val issue = issueTrackingEngine.getIssues(userID = userID)
 
@@ -322,4 +300,5 @@ class TestKtIssueTrackingEngine {
             assertEquals(issue.userID, issueLight.userId)
         }
     }
+
 }

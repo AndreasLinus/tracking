@@ -4,7 +4,7 @@ import java.util.*
 
 
 /**
- * Class representing an [Issue] in our [Issue] tracker
+ * Class representing an [Issue] in our [Issue] tracker engine
  *
  * @property title the title of the [Issue]
  * @property ID unique identifier for the issue

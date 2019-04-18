@@ -14,6 +14,6 @@ import java.util.*
 class Comment(
     val issueID: String,
     val creationDate: Date = java.util.Calendar.getInstance().time,
-    userID: String,
+    val userID: String,
     val comment: String? = null
 )

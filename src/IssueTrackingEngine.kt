@@ -3,19 +3,8 @@ import java.util.*
 
 class IssueTrackingEngine(listOfUser: MutableList<User>, listOfIssue: MutableList<Issue>) {
 
-    private val listOfIssues: MutableList<Issue> = listOfIssue
-    private val listOfUsers: MutableList<User> = listOfUser
-
-
-//Every issue can be uniquely identified = v
-//Every issue has a creation date = v
-//And issue is always in a specific state = v
-//Starts in the _TODO state = v
-//State changes are recorded by timestamps = v
-//Users have a name and can be uniquely identified = v
-//Users can be assigned to one or more issues = v
-//Users can comment on issues = v
-//Comments have creating dates = v
+     val listOfIssues: MutableList<Issue> = listOfIssue
+     val listOfUsers: MutableList<User> = listOfUser
 
     /**
      * Adds a [Issue] to list of issues.
@@ -67,7 +56,7 @@ class IssueTrackingEngine(listOfUser: MutableList<User>, listOfIssue: MutableLis
      * If null, the issue no longer has a user assigned to it.
      * @param issueId An ID of some sort that uniquely identifies the [Issue] to assign the user to.
      */
-    fun assignUser(userID: String?, issueId: String) {
+    fun assignUserToIssue(userID: String?, issueId: String) {
         val issue: Issue? = getIssue(issueId)
         if (issue != null) {
             if (userID == null)
@@ -192,7 +181,7 @@ class IssueTrackingEngine(listOfUser: MutableList<User>, listOfIssue: MutableLis
         return listOfUsers
     }
 
-    fun getIssuesBetweenDate(
+    private fun getIssuesBetweenDate(
         startDate: Date?,
         endDate: Date?,
         list: List<IssueLight>
@@ -200,22 +189,21 @@ class IssueTrackingEngine(listOfUser: MutableList<User>, listOfIssue: MutableLis
         return list.filter { issue -> issue.creationDate >= startDate && issue.creationDate <= endDate }
     }
 
-    fun getIssueLightAfter(startDate: Date?, list: List<IssueLight>): List<IssueLight> {
+    private fun getIssueLightAfter(startDate: Date?, list: List<IssueLight>): List<IssueLight> {
         return list.filter { issue -> issue.creationDate >= startDate }
     }
 
-    fun getIssueLightBefore(endDate: Date?, list: List<IssueLight>): List<IssueLight> {
+    private fun getIssueLightBefore(endDate: Date?, list: List<IssueLight>): List<IssueLight> {
         return list.filter { issue -> issue.creationDate <= endDate }
     }
 
-    fun getIssueLightByState(state: State, list: List<IssueLight>): List<IssueLight> {
+    private fun getIssueLightByState(state: State, list: List<IssueLight>): List<IssueLight> {
         return list.filter { issue -> issue.state == state }
     }
 
-    fun getIssueLightByUserID(userID: String, list: List<IssueLight>): List<IssueLight> {
+    private fun getIssueLightByUserID(userID: String, list: List<IssueLight>): List<IssueLight> {
         return list.filter { issue -> issue.userId == userID }
     }
-
 
     /**
      * Converts a [List] of [Issue] to a [List] of [IssueLight]
@@ -223,7 +211,7 @@ class IssueTrackingEngine(listOfUser: MutableList<User>, listOfIssue: MutableLis
      * @param list the [List] of [Issue] to convert to a [List] of [IssueLight]
      * @return [List] of [IssueLight] created from provided [List] of [Issue]
      */
-    fun convertIssueListToIssueLight(list: List<Issue>): List<IssueLight> {
+    private fun convertIssueListToIssueLight(list: List<Issue>): List<IssueLight> {
 
         val listLight: MutableList<IssueLight> = mutableListOf()
 
@@ -251,8 +239,4 @@ class IssueTrackingEngine(listOfUser: MutableList<User>, listOfIssue: MutableLis
             userId = issue.userID
         )
     }
-
-
-
-
 }
