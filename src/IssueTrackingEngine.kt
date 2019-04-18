@@ -132,6 +132,10 @@ class IssueTrackingEngine(listOfUser: MutableList<User>, listOfIssue: MutableLis
         }
     }
 
+    fun getAllIssues() : MutableList<Issue>{
+        return listOfIssues
+    }
+
     /**
      * Retrieve an [Issue].
      * The issue with the specified ID. The issue should include all relevant information, such as state, title,

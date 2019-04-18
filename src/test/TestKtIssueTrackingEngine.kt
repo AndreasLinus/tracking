@@ -7,7 +7,6 @@ import models.User
 import org.junit.jupiter.api.Test
 
 import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.BeforeEach
 import java.time.Instant
 import java.util.*
 
@@ -21,39 +20,34 @@ class TestKtIssueTrackingEngine {
     private val issueComment = "Something went wrong"
     private val issueTrackingEngine: IssueTrackingEngine = IssueTrackingEngine(listOfUsers, listOfIssues)
 
-    @BeforeEach
-    fun clearUsersAndIssues() {
-        listOfUsers.clear()
-        listOfIssues.clear()
-    }
 
     //The rest is tested below
     @Test
     fun testScenario1() {
         //Add User
         val userID = issueTrackingEngine.addUser(userName)
-        assertEquals(userID, listOfUsers.first().ID)
+        assertEquals(userID, listOfUsers.last().ID)
         //Get user
         val user = issueTrackingEngine.getUser(userID)
         assertEquals(user!!.ID, userID)
         //Add Issue
         val issueID = issueTrackingEngine.addIssue(issueTitle)
-        assertEquals(issueID, listOfIssues.first().ID)
+        assertEquals(issueID, listOfIssues.last().ID)
         //Get Issue
         val issue = issueTrackingEngine.getIssue(issueID)
         assertEquals(issueID, issue!!.ID)
         //AssignUser
         issueTrackingEngine.assignUserToIssue(userID, issueID)
-        assertEquals(userID, listOfIssues.first().userID)
+        assertEquals(userID, listOfIssues.last().userID)
         //Set issue state
         issueTrackingEngine.setIssueState(issueID, State.IN_PROGRESS_STATE, issueComment)
-        assertEquals(State.IN_PROGRESS_STATE, listOfIssues.first().state)
-        assertEquals(issueComment, listOfIssues.first().stateChangedComment)
+        assertEquals(State.IN_PROGRESS_STATE, listOfIssues.last().state)
+        assertEquals(issueComment, listOfIssues.last().stateChangedComment)
         //Add issue comment
         issueTrackingEngine.addIssueComment(issueID, issueComment, userID)
         val updatedIssue = issueTrackingEngine.getIssue(issueID)
-        assertEquals(this.issueComment, updatedIssue!!.listOfComments.first().comment)
-        assertEquals(userID, updatedIssue.listOfComments.first().userID)
+        assertEquals(this.issueComment, updatedIssue!!.listOfComments.last().comment)
+        assertEquals(userID, updatedIssue.listOfComments.last().userID)
         //GetUsers
         val listOfUser = issueTrackingEngine.getUsers()
         assertEquals(issueTrackingEngine.listOfUsers, listOfUser)
@@ -156,19 +150,23 @@ class TestKtIssueTrackingEngine {
         val issueID = issueTrackingEngine.addIssue(issueTitle)
         issueTrackingEngine.addIssueComment(issueID, issueComment, userID)
         val updatedIssue = issueTrackingEngine.getIssue(issueID)
-        assertEquals(issueComment, updatedIssue!!.listOfComments.first().comment)
-        assertEquals(updatedIssue.listOfComments.first().issueID, issueID)
-        assertEquals(updatedIssue.listOfComments.first().userID, userID)
+        assertEquals(issueComment, updatedIssue!!.listOfComments.last().comment)
+        assertEquals(updatedIssue.listOfComments.last().issueID, issueID)
+        assertEquals(updatedIssue.listOfComments.last().userID, userID)
     }
 
     @Test
     fun getIssues() {
-        val loopLength = 3
-        for (i in 1..loopLength)
+        listOfIssues.clear()
+        for (i in 1..3)
             issueTrackingEngine.addIssue(issueTitle)
 
         val issues = issueTrackingEngine.getIssues(null)
-        assertEquals(loopLength, issues.size)
+        val listOfIssues = issueTrackingEngine.getAllIssues()
+        //TODO make method to check all properties
+        for (i in issues.indices)
+            assertEquals(issues[i].ID, listOfIssues[i].ID)
+
     }
 
     @Test
@@ -182,6 +180,7 @@ class TestKtIssueTrackingEngine {
 
     @Test
     fun getUsers() {
+        listOfUsers.clear()
         val newListOfUsers = initUserList()
         newListOfUsers.forEach { listOfUsers.add(it) }
         val listOfUsers = issueTrackingEngine.getUsers()
@@ -238,6 +237,7 @@ class TestKtIssueTrackingEngine {
 
         assertEquals(issue1.creationDate, issue.first().creationDate)
         assertEquals(issue2.creationDate, issue[1].creationDate)
+        assertEquals(2, issue.size)
     }
 
     @Test
@@ -251,7 +251,7 @@ class TestKtIssueTrackingEngine {
 
         val issue = issueTrackingEngine.getIssues(state = stateToSearch)
 
-        assertEquals(stateToSearch, issue.first().state)
+        assertEquals(stateToSearch, issue.last().state)
         assertEquals(1, issue.size)
     }
 
@@ -268,9 +268,9 @@ class TestKtIssueTrackingEngine {
 
         val issue = issueTrackingEngine.getIssues(state = stateToSearch, userID = userID, startDate = startDate)
 
-        assertEquals(stateToSearch, issue.first().state)
-        assertEquals(userID, issue.first().userId)
-        assertEquals(startDate, issue.first().creationDate)
+        assertEquals(stateToSearch, issue.last().state)
+        assertEquals(userID, issue.last().userId)
+        assertEquals(startDate, issue.last().creationDate)
         assertEquals(1, issue.size)
     }
 
@@ -284,7 +284,7 @@ class TestKtIssueTrackingEngine {
 
         val issue = issueTrackingEngine.getIssues(userID = userID)
 
-        assertEquals(userID, issue.first().userId)
+        assertEquals(userID, issue.last().userId)
         assertEquals(1, issue.size)
     }
 
