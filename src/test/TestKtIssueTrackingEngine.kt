@@ -266,7 +266,8 @@ class TestKtIssueTrackingEngine {
         listOfIssues.add(issue1)
         listOfIssues.add(issue2)
 
-        val listOfIssueLight = issueTrackingEngine.getIssues(state = stateToSearch, userID = userID, startDate = startDate)
+        val listOfIssueLight =
+            issueTrackingEngine.getIssues(state = stateToSearch, userID = userID, startDate = startDate)
 
         assertEquals(stateToSearch, listOfIssueLight.last().state)
         assertEquals(userID, listOfIssueLight.last().userId)
