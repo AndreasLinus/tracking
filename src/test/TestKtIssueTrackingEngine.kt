@@ -11,17 +11,20 @@ import org.junit.jupiter.api.Assertions.*
 import java.time.Instant
 import java.util.*
 
-class TestKtIssueTrackingEngine {
+private class TestKtIssueTrackingEngine {
 
 
     private val issueTitle = "Test"
     private val userName = "Steve"
     private val issueComment = "Something went wrong"
-    private val issueTrackingEngine: IssueTrackingEngine = IssueTrackingEngine()
 
-    private val listOfIssues: MutableList<Issue> = issueTrackingEngine.listOfIssues
-    private val listOfUsers: MutableList<User> = issueTrackingEngine.listOfUsers
-    private val listOfComments: MutableList<Comment> = issueTrackingEngine.listOfComments
+    private val listOfIssues: MutableList<Issue> = mutableListOf()
+    private val listOfUsers: MutableList<User> = mutableListOf()
+    private val listOfComments: MutableList<Comment> = mutableListOf()
+
+    private val issueTrackingEngine: IssueTrackingEngine =
+        IssueTrackingEngine(listOfIssues, listOfUsers, listOfComments)
+
 
     //The rest is tested below
     @Test

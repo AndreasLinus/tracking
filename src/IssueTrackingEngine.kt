@@ -1,11 +1,11 @@
 import models.*
 import java.util.*
 
-class IssueTrackingEngine {
-
-    val listOfIssues: MutableList<Issue> = mutableListOf()
-    val listOfUsers: MutableList<User> = mutableListOf()
-    val listOfComments: MutableList<Comment> = mutableListOf()
+class IssueTrackingEngine(
+    private val listOfIssues: MutableList<Issue>,
+    private val listOfUsers: MutableList<User>,
+    private val listOfComments: MutableList<Comment>
+) {
 
     /**
      * Adds a [Issue] to list of issues.

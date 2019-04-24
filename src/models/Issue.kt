@@ -20,7 +20,7 @@ class Issue(
     val ID: String = UUID.randomUUID().toString(),
     val creationDate: Date = Calendar.getInstance().time,
     var state: State = State.TODO,
-    var stateChangedDate: MutableList<Date> = mutableListOf(),
+    val stateChangedDate: MutableList<Date> = mutableListOf(),
     var stateChangedComment: String? = null,
     var userID: String? = null
 )

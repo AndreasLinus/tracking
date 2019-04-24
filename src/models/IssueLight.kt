@@ -19,7 +19,7 @@ result.*/
 class IssueLight(
     val ID: String = UUID.randomUUID().toString(),
     val creationDate: Date = Calendar.getInstance().time,
-    var state: State = State.TODO,
+    val state: State = State.TODO,
     val title: String = "",
-    var userId: String? = null
+    val userId: String? = null
 )
