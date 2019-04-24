@@ -13,11 +13,7 @@ class IssueTrackingEngine(
      * @return The ID of the newly created issue.
      */
     fun addIssue(title: String): String {
-        val issueToAdd = Issue(title)
-        //Probably nice if we check so that the list not already contains the issue
-        //if (!listOfIssues.contains(issueToAdd))
-        listOfIssues.add(issueToAdd)
-        return issueToAdd.ID
+        return Issue(title).also { listOfIssues.add(it) }.ID
     }
 
     /**
@@ -30,42 +26,31 @@ class IssueTrackingEngine(
     }
 
     /**
-     *Set the state of an [Issue], with an optional comment
+     *Set the newState of an [Issue], with an optional newComment
      *
-     * comment : And optional description string of the state change
+     * newComment : And optional description string of the newState change
      * @param issueID ID that uniquely identifies the issue
-     * @param state The new state
-     * @param comment An optional description string of the state change
+     * @param newState The new newState
+     * @param newComment An optional description string of the newState change
      */
-    fun setIssueState(issueID: String, state: State, comment: String? = null) {
-        val issue: Issue? = getIssue(issueID)
-        if (issue != null) {
-            issue.state = state
-            //This could be bad, if this computer clock is wrong then so will the issue state changed
-            //so maybe pass it as an argument from a more reliable source?
-            //Also probably add new object State changed so we can include userID so we know who changed it not just when
-            issue.stateChangedDate.add(Calendar.getInstance().time)
-            if (comment != null)
-                issue.stateChangedComment = comment
+    fun setIssueState(issueID: String, newState: State, newComment: String? = null) {
+        getIssue(issueID)?.apply {
+            state = newState
+            stateChangedDate.add(Calendar.getInstance().time)
+            stateChangedComment = newComment
         }
     }
 
     /**
      *Assign User to issue
      *
-     * @param userID An ID of some sort that uniquely identifies the [User] to assign.
+     * @param newUserID An ID of some sort that uniquely identifies the [User] to assign.
      * If null, the issue no longer has a user assigned to it.
      * @param issueId An ID of some sort that uniquely identifies the [Issue] to assign the user to.
      */
-    fun assignUserToIssue(userID: String?, issueId: String) {
-        val issue: Issue? = getIssue(issueId)
-        if (issue != null) {
-            if (userID == null)
-            // This is probably bad design what if we accidentally pass null
-                issue.userID = null
-            else {
-                issue.userID = userID
-            }
+    fun assignUserToIssue(newUserID: String?, issueId: String) {
+        getIssue(issueId)?.apply {
+            userID = newUserID
         }
     }
 
@@ -160,11 +145,7 @@ class IssueTrackingEngine(
      */
 
     fun addUser(name: String): String {
-        val user = User(name)
-        //Should probably check so that user doesn't already exist...
-        //if (!listOfUsers.contains(user))
-        listOfUsers.add(user)
-        return user.ID
+        return User(name).also { listOfUsers.add(it) }.ID
     }
 
     /**
