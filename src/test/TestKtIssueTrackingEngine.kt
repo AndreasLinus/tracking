@@ -294,14 +294,13 @@ private class TestKtIssueTrackingEngine {
 
     @Test
     fun convert() {
-        val issue = issueTrackingEngine.getIssue(issueTitle)
-        if (issue != null) {
-            val issueLight = issueTrackingEngine.convertIssueToIssueLight(issue)
-            assertEquals(issue.creationDate, issueLight.creationDate)
-            assertEquals(issue.ID, issueLight.ID)
-            assertEquals(issue.state, issueLight.state)
-            assertEquals(issue.title, issueLight.title)
-            assertEquals(issue.userID, issueLight.userId)
+        issueTrackingEngine.getIssue(issueTitle)?.run {
+            val issueLight = issueTrackingEngine.convertIssueToIssueLight(this)
+            assertEquals(this.creationDate, issueLight.creationDate)
+            assertEquals(this.ID, issueLight.ID)
+            assertEquals(this.state, issueLight.state)
+            assertEquals(this.title, issueLight.title)
+            assertEquals(this.userID, issueLight.userId)
         }
     }
 

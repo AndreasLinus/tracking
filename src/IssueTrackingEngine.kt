@@ -34,7 +34,7 @@ class IssueTrackingEngine(
      * @param newComment An optional description string of the newState change
      */
     fun setIssueState(issueID: String, newState: State, newComment: String? = null) {
-        getIssue(issueID)?.apply {
+        getIssue(issueID)?.run {
             state = newState
             stateChangedDate.add(Calendar.getInstance().time)
             stateChangedComment = newComment
@@ -49,7 +49,7 @@ class IssueTrackingEngine(
      * @param issueId An ID of some sort that uniquely identifies the [Issue] to assign the user to.
      */
     fun assignUserToIssue(newUserID: String?, issueId: String) {
-        getIssue(issueId)?.apply {
+        getIssue(issueId)?.run {
             userID = newUserID
         }
     }
