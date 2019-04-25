@@ -17,6 +17,7 @@ private class TestKtIssueTrackingEngine {
     private val issueTitle = "Test"
     private val userName = "Steve"
     private val issueComment = "Something went wrong"
+    //var user : User? = null
 
     private val listOfIssues: MutableList<Issue> = mutableListOf()
     private val listOfUsers: MutableList<User> = mutableListOf()
@@ -103,30 +104,30 @@ private class TestKtIssueTrackingEngine {
 
     @Test
     fun addAndGetIssue() {
-        val issueID = issueTrackingEngine.addIssue(issueTitle)
-        val issue = issueTrackingEngine.getIssue(issueID)
-        assertNotEquals(null, issue)
-        assertEquals(issueID, issue!!.ID)
-        assertEquals(issueTitle, issue.title)
+        issueTrackingEngine.addIssue(issueTitle).let {
+            assertNotNull(issueTrackingEngine.getIssue(it)?.run {
+                assertEquals(it, ID)
+                assertEquals(issueTitle, title)
+            })
+        }
     }
 
     @Test
     fun addAndGetUser() {
-        val userID = issueTrackingEngine.addUser(userName)
-        val user = issueTrackingEngine.getUser(userID)
-        assertNotEquals(null, user)
-        assertEquals(userID, user!!.ID)
-        assertEquals(userName, user.name)
+        issueTrackingEngine.addUser(userName).let {
+            assertNotNull(issueTrackingEngine.getUser(it)?.run {
+                assertEquals(it, ID)
+                assertEquals(userName, userName)
+            })
+        }
     }
 
     @Test
     fun removeIssue() {
-        val issueID = issueTrackingEngine.addIssue(issueTitle)
-        //Remove issue
-        issueTrackingEngine.removeIssue(issueID)
-        //Get issue
-        val removedIssue = issueTrackingEngine.getIssue(issueID)
-        assertEquals(null, removedIssue)
+        assertNotNull(issueTrackingEngine.addIssue(issueTitle).let {
+            issueTrackingEngine.removeIssue(it)
+            assertNull(issueTrackingEngine.getIssue(it))
+        })
     }
 
     @Test
@@ -294,14 +295,21 @@ private class TestKtIssueTrackingEngine {
 
     @Test
     fun convert() {
-        issueTrackingEngine.getIssue(issueTitle)?.run {
-            val issueLight = issueTrackingEngine.convertIssueToIssueLight(this)
-            assertEquals(this.creationDate, issueLight.creationDate)
-            assertEquals(this.ID, issueLight.ID)
-            assertEquals(this.state, issueLight.state)
-            assertEquals(this.title, issueLight.title)
-            assertEquals(this.userID, issueLight.userId)
+        ISSUE.let {
+            issueTrackingEngine.convertIssueToIssueLight(it).run {
+                assertEquals(it.creationDate, creationDate)
+                assertEquals(it.ID, ID)
+                assertEquals(it.state, state)
+                assertEquals(it.title, title)
+                assertEquals(it.userID, userId)
+            }
         }
+    }
+
+    companion object {
+        private const val userName = "Steve"
+        private val USER = User(userName)
+        private val ISSUE = Issue("id", "username")
     }
 
 }
