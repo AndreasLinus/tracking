@@ -1,12 +1,11 @@
 import models.*
 import java.util.*
 
-class IssueTrackingEngine(
-    private val listOfIssues: MutableList<Issue>,
-    private val listOfUsers: MutableList<User>,
-    private val listOfComments: MutableList<Comment>
-) {
+class IssueTrackingEngine {
 
+    private val listOfComments: MutableList<Comment> = mutableListOf()
+    private val listOfUsers: MutableList<User> = mutableListOf()
+    private val listOfIssues: MutableList<Issue> = mutableListOf()
     /**
      * Adds a [Issue] to list of issues.
      *
@@ -121,6 +120,14 @@ class IssueTrackingEngine(
         return listOfIssues
     }
 
+    fun clearAllIssues() {
+        listOfIssues.clear()
+    }
+
+    fun addIssue(issue: Issue) {
+        listOfIssues.add(issue)
+    }
+
     /**
      * Retrieve an [Issue].
      * The issue with the specified ID. The issue should include all relevant information, such as state, title,
@@ -137,6 +144,19 @@ class IssueTrackingEngine(
         return null
     }
 
+    fun getComment(commentID: String): Comment? {
+        listOfComments.forEach {
+            if (it.issueID == commentID)
+                return it
+        }
+        return null
+    }
+
+    fun getComments(): MutableList<Comment> {
+        return listOfComments
+    }
+
+
     /**
      * Adds an [User]
      *
@@ -146,6 +166,10 @@ class IssueTrackingEngine(
 
     fun addUser(name: String): String {
         return User(name).also { listOfUsers.add(it) }.ID
+    }
+
+    fun addUser(user: User) {
+        listOfUsers.add(user)
     }
 
     /**

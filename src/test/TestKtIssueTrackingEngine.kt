@@ -1,7 +1,6 @@
 package test
 
 import IssueTrackingEngine
-import models.Comment
 import models.Issue
 import models.State
 import models.User
@@ -13,86 +12,71 @@ import java.util.*
 
 private class TestKtIssueTrackingEngine {
 
-
     private val issueTitle = "Test"
     private val userName = "Steve"
     private val issueComment = "Something went wrong"
-    //var user : User? = null
 
-    private val listOfIssues: MutableList<Issue> = mutableListOf()
-    private val listOfUsers: MutableList<User> = mutableListOf()
-    private val listOfComments: MutableList<Comment> = mutableListOf()
 
     private val issueTrackingEngine: IssueTrackingEngine =
-        IssueTrackingEngine(listOfIssues, listOfUsers, listOfComments)
+        IssueTrackingEngine()
 
-
-    //The rest is tested below
     @Test
     fun testScenario1() {
-        //Add User
-        val userID = issueTrackingEngine.addUser(userName)
-        assertEquals(userID, listOfUsers.last().ID)
-        //Get user
-        val user = issueTrackingEngine.getUser(userID)
-        assertEquals(user!!.ID, userID)
-        //Add Issue
-        val issueID = issueTrackingEngine.addIssue(issueTitle)
-        assertEquals(issueID, listOfIssues.last().ID)
-        //Get Issue
-        val issue = issueTrackingEngine.getIssue(issueID)
-        assertEquals(issueID, issue!!.ID)
-        //AssignUser
-        issueTrackingEngine.assignUserToIssue(userID, issueID)
-        assertEquals(userID, listOfIssues.last().userID)
-        //Set issue state
-        issueTrackingEngine.setIssueState(issueID, State.IN_PROGRESS_STATE, issueComment)
-        assertEquals(State.IN_PROGRESS_STATE, listOfIssues.last().state)
-        assertEquals(issueComment, listOfIssues.last().stateChangedComment)
-        //Add issue comment
-        issueTrackingEngine.addIssueComment(issueID, issueComment, userID)
-        assertEquals(issueComment, listOfComments.last().comment)
-        assertEquals(userID, listOfComments.last().userID)
-        //GetUsers
-        val listOfUser = issueTrackingEngine.getUsers()
-        assertEquals(listOfUsers, listOfUser)
-        //GetIssues
-        val listOfIssue = issueTrackingEngine.getIssues()
-        assertEquals(listOfIssues.size, listOfIssue.size)
-        //Remove issue
-        issueTrackingEngine.removeIssue(issueID)
-        val removedIssue = issueTrackingEngine.getIssue(issueID)
-        assertEquals(null, removedIssue)
+        issueTrackingEngine.run {
+            //Add User
+            USER.run {
+                addUser(this)
+                assertEquals(ID, getUsers().last().ID)
+                //Get user
+                assertNotNull(getUser(ID)?.let {
+                    assertEquals(it.ID, ID)
+                })
+                //Add Issue
+                assertNotNull(addIssue(issueTitle).let { issueID ->
+                    getAllIssues().run {
+                        assertEquals(issueID, last().ID)
+                        //Get Issue
+                        assertNotNull(getIssue(issueID)?.run {
+                            assertEquals(issueID, ID)
+                        }
+                        )
+                        //AssignUser
+                        assignUserToIssue(ID, issueID)
+                        assertEquals(ID, last().userID)
+                        //Set issue state
+                        setIssueState(issueID, State.IN_PROGRESS_STATE, issueComment)
+                        assertEquals(State.IN_PROGRESS_STATE, last().state)
+                        assertEquals(issueComment, last().stateChangedComment)
+                        //Add issue comment
+                        addIssueComment(issueID, issueComment, ID)
+                        assertEquals(issueComment, getComment(issueID)?.comment)
+                        assertEquals(ID, last().userID)
+                        //todo
+                        //GetUsers
+                        //GetIssues
+                        //Remove issue
+                        removeIssue(issueID)
+                        assertNull(getIssue(issueID))
+                    }
+                })
+            }
+        }
     }
-
 
     private val name1 = "Johan"
     private val name2 = "Benny"
     private val name3 = "Anna"
 
-    private fun initUserList(): List<User> {
-        return listOf(User(name1), User(name2), User(name3))
-    }
-
-    private fun initNameList(): List<String> {
-        return listOf(name1, name2, name3)
-    }
+    val userList = listOf(User(name1), User(name2), User(name3))
+    val nameList = listOf(name1, name2, name3)
 
     @Test
     fun getListOfIssues() {
-        //TODO fix
-        val userList = initUserList()
-        val nameList = initNameList()
-        if (nameList.size == userList.size)
-            for (i in nameList.indices) {
-                assertEquals(nameList[i], userList[i].name)
-            }
+
     }
 
     @Test
     fun getListOfUsers() {
-        val userList = initUserList()
-        val nameList = initNameList()
         assertEquals(nameList.size, userList.size)
         nameList.forEachIndexed { i, element ->
             assertEquals(element, userList[i].name)
@@ -101,128 +85,138 @@ private class TestKtIssueTrackingEngine {
 
     @Test
     fun addAndGetIssue() {
-        issueTrackingEngine.addIssue(issueTitle).let {
-            assertNotNull(issueTrackingEngine.getIssue(it)?.run {
-                assertEquals(it, ID)
-                assertEquals(issueTitle, title)
-            })
+        issueTrackingEngine.run {
+            assertNotNull(addIssue(issueTitle).let {
+                assertNotNull(getIssue(it)?.run {
+                    assertEquals(it, ID)
+                    assertEquals(issueTitle, title)
+                })
+            }
+            )
         }
     }
 
     @Test
     fun addAndGetUser() {
-        issueTrackingEngine.addUser(userName).let {
-            assertNotNull(issueTrackingEngine.getUser(it)?.run {
-                assertEquals(it, ID)
-                assertEquals(userName, userName)
+        issueTrackingEngine.run {
+            assertNotNull(addUser(userName).let {
+                assertNotNull(getUser(it)?.run {
+                    assertEquals(it, ID)
+                    assertEquals(userName, userName)
+                })
             })
         }
     }
 
     @Test
     fun removeIssue() {
-        assertNotNull(issueTrackingEngine.addIssue(issueTitle).let {
-            issueTrackingEngine.removeIssue(it)
-            assertNull(issueTrackingEngine.getIssue(it))
-        })
-    }
-
-    @Test
-    fun setIssueState() {
-        issueTrackingEngine.addIssue(issueTitle).let {
-            issueTrackingEngine.setIssueState(it, State.IN_PROGRESS_STATE, issueComment)
-            assertNotNull(issueTrackingEngine.getIssue(it)?.run {
-                assertEquals(State.IN_PROGRESS_STATE, state)
-                assertEquals(issueComment, stateChangedComment)
+        issueTrackingEngine.run {
+            assertNotNull(addIssue(issueTitle).let {
+                removeIssue(it)
+                assertNull(getIssue(it))
             })
         }
     }
 
     @Test
+    fun setIssueState() {
+        issueTrackingEngine.run {
+            addIssue(issueTitle).let {
+                setIssueState(it, State.IN_PROGRESS_STATE, issueComment)
+                assertNotNull(getIssue(it)?.run {
+                    assertEquals(State.IN_PROGRESS_STATE, state)
+                    assertEquals(issueComment, stateChangedComment)
+                })
+            }
+        }
+    }
+
+    @Test
     fun assignUser() {
-        issueTrackingEngine.addUser(userName).let { newUserID ->
-            issueTrackingEngine.addIssue(issueTitle).let {
-                issueTrackingEngine.assignUserToIssue(newUserID, it)
-                issueTrackingEngine.getIssue(it)?.run {
-                    assertEquals(newUserID, userID)
+        issueTrackingEngine.run {
+            addUser(userName).let { newUserID ->
+                addIssue(issueTitle).let {
+                    assignUserToIssue(newUserID, it)
+                    getIssue(it)?.run {
+                        assertEquals(newUserID, userID)
+                    }
                 }
             }
         }
     }
 
-
     @Test
     fun addIssueComment() {
-        issueTrackingEngine.addUser(userName).let { newUserID ->
-            issueTrackingEngine.addIssue(issueTitle).let { issueID ->
-                issueTrackingEngine.addIssueComment(issueID, issueComment, newUserID)
-                assertEquals(issueComment, listOfComments.last().comment)
-                assertEquals(listOfComments.last().issueID, issueID)
-                assertEquals(listOfComments.last().userID, newUserID)
+        issueTrackingEngine.run {
+            addUser(userName).let { newUserID ->
+                addIssue(issueTitle).let { issueID ->
+                    addIssueComment(issueID, issueComment, newUserID)
+                    getComments().run {
+                        assertEquals(this[0], last())
+                    }
+                }
             }
         }
     }
 
     @Test
     fun getIssues() {
-        listOfIssues.clear()
-        for (i in 1..3)
-            issueTrackingEngine.addIssue(issueTitle)
+        issueTrackingEngine.run {
+            clearAllIssues()
+            for (i in 1..3)
+                addIssue(issueTitle)
 
-        issueTrackingEngine.getIssues(null).let { allIssuesLight ->
-            issueTrackingEngine.getAllIssues().run {
-                assertEquals(size, allIssuesLight.size)
-                for (i in allIssuesLight.indices)
-                    assertEquals(allIssuesLight[i].ID, this[i].ID)
+            getIssues(null).let {
+                getAllIssues().run {
+                    assertEquals(size, it.size)
+                    for (i in it.indices) {
+                        assertEquals(it[i].ID, this[i].ID)
+                        assertEquals(it[i].creationDate, this[i].creationDate)
+                        assertEquals(it[i].state, this[i].state)
+                        assertEquals(it[i].title, this[i].title)
+                        assertEquals(it[i].userId, this[i].userID)
+                    }
+
+                }
             }
         }
     }
 
     @Test
     fun getAndAddUser() {
-        issueTrackingEngine.addUser(userName).let {
-            issueTrackingEngine.getUser(it)?.run {
-                assertEquals(it, ID)
-                assertEquals(userName, name)
+        issueTrackingEngine.run {
+            addUser(userName).let {
+                getUser(it)?.run {
+                    assertEquals(it, ID)
+                    assertEquals(userName, name)
+                }
             }
-        }
-    }
-
-
-    @Test
-    fun getUsers() {
-        listOfUsers.clear()
-        initUserList().run {
-            forEach { listOfUsers.add(it) }
-            assertEquals(issueTrackingEngine.getUsers(), this)
         }
     }
 
     @Test
     fun getIssuesBetweenDate() {
-
-        val startDate = Date.from(Instant.parse("2016-12-03T10:15:30.00Z"))
-        val endDate = Date.from(Instant.parse("2019-12-03T10:15:30.00Z"))
-
-        val (issue1, issue2) = getPairOfIssuesFromDates(startDate, endDate)
-
-        issueTrackingEngine.getIssues(startDate = startDate, endDate = endDate).run {
-            assertEquals(issue1.creationDate, first().creationDate)
-            assertEquals(issue2.creationDate, last().creationDate)
+        getPairOfIssuesFromDates(creationDate2017, creationDate2018).run {
+            issueTrackingEngine.getIssues(startDate = creationDate2017, endDate = creationDate2018).run {
+                assertEquals(get(0).creationDate, first().creationDate)
+                assertEquals(get(1).creationDate, last().creationDate)
+            }
         }
-
-
     }
+
+    val creationDate2017: Date = Date.from(Instant.parse("2017-12-03T10:15:30.00Z"))
+    val creationDate2018: Date = Date.from(Instant.parse("2018-12-03T10:15:30.00Z"))
 
     @Test
     fun getIssueLightAfter() {
-        val startDate = Date.from(Instant.parse("2018-12-03T10:15:30.00Z"))
-        //TODO fix
         ISSUE.let {
-            listOfIssues.add(it)
-            issueTrackingEngine.getIssues(startDate = startDate).run {
-                assertEquals(startDate, first().creationDate)
-                assertEquals(1, size)
+            issueTrackingEngine.run {
+                addIssue(it)
+                addIssue(Issue(issueTitle, creationDate = creationDate2017))
+                issueTrackingEngine.getIssues(startDate = it.creationDate).run {
+                    assertEquals(it.creationDate, first().creationDate)
+                    assertEquals(1, size)
+                }
             }
 
         }
@@ -232,92 +226,95 @@ private class TestKtIssueTrackingEngine {
     private fun getPairOfIssuesFromDates(firstIssueDate: Date, secondIssueDate: Date): Pair<Issue, Issue> {
         val issue1 = Issue(issueTitle, creationDate = firstIssueDate)
         val issue2 = Issue(issueTitle, creationDate = secondIssueDate)
-
-        listOfIssues.add(issue1)
-        listOfIssues.add(issue2)
+        issueTrackingEngine.run {
+            addIssue(issue1)
+            addIssue(issue2)
+        }
         return Pair(issue1, issue2)
     }
 
     @Test
     fun getIssueLightBefore() {
-
-        val dateToGetIssuesBefore = Date.from(Instant.parse("2018-12-03T10:15:30.00Z"))
-        val creationDateIssue2 = Date.from(Instant.parse("2017-12-03T10:15:30.00Z"))
-
-        val (issue1, issue2) = getPairOfIssuesFromDates(dateToGetIssuesBefore, creationDateIssue2)
-
-        issueTrackingEngine.getIssues(endDate = dateToGetIssuesBefore).run {
-            assertEquals(issue1.creationDate, first().creationDate)
-            assertEquals(issue2.creationDate, last().creationDate)
-            assertEquals(2, size)
+        getPairOfIssuesFromDates(creationDate2018, creationDate2017).run {
+            issueTrackingEngine.getIssues(endDate = creationDate2018).run {
+                assertEquals(get(0).creationDate, first().creationDate)
+                assertEquals(get(1).creationDate, last().creationDate)
+                assertEquals(2, size)
+            }
         }
-
     }
+
+    val stateToSearch = State.TODO
 
     @Test
     fun getIssueLightByState() {
-        val stateToSearch = State.TODO
-
-        listOfIssues.add(Issue(issueTitle, state = stateToSearch))
-        listOfIssues.add(Issue(issueTitle, state = State.DONE))
-
-        issueTrackingEngine.getIssues(state = stateToSearch).run {
-            assertEquals(stateToSearch, last().state)
-            assertEquals(1, size)
+        issueTrackingEngine.run {
+            assertNotNull(addIssue(Issue(issueTitle, state = stateToSearch)))
+            assertNotNull(addIssue(Issue(issueTitle, state = State.DONE)))
+            assertNotNull(getIssues(state = stateToSearch).run {
+                assertEquals(stateToSearch, last().state)
+                assertEquals(1, size)
+            })
         }
+
+
     }
 
     @Test
     fun multipleParameterFilter() {
-
-        val stateToSearch = State.TODO
-        val startDate = Date.from(Instant.parse("2018-12-03T10:15:30.00Z"))
-        val userID = issueTrackingEngine.addUser(userName)
-
-        listOfIssues.add(Issue(issueTitle, userID = userID, creationDate = startDate, state = stateToSearch))
-        listOfIssues.add(Issue(issueTitle, state = State.DONE))
-
-        assertNotNull(issueTrackingEngine.getIssues(state = stateToSearch, userID = userID, startDate = startDate).run {
-            assertEquals(stateToSearch, last().state)
-            assertEquals(userID, last().userId)
-            assertEquals(startDate, last().creationDate)
-            assertEquals(1, size)
-        })
+        issueTrackingEngine.run {
+            assertNotNull(addUser(userName).let { userID ->
+                addIssue(Issue(issueTitle, userID = userID, creationDate = creationDate2018, state = stateToSearch))
+                addIssue(Issue(issueTitle, state = State.DONE))
+                assertNotNull(
+                    getIssues(
+                        state = stateToSearch,
+                        userID = userID,
+                        startDate = creationDate2018
+                    ).run {
+                        assertEquals(stateToSearch, last().state)
+                        assertEquals(userID, last().userId)
+                        assertEquals(creationDate2018, last().creationDate)
+                        assertEquals(1, size)
+                    })
+            })
+        }
 
     }
 
-
     @Test
     fun getIssueLightByUserID() {
-        val userID = issueTrackingEngine.addUser(userName)
-        val issueID = issueTrackingEngine.addIssue(issueTitle)
-
-        issueTrackingEngine.addIssue(issueTitle)
-        issueTrackingEngine.assignUserToIssue(userID, issueID)
-
-        val listOfIssueLight = issueTrackingEngine.getIssues(userID = userID)
-
-        assertEquals(userID, listOfIssueLight.last().userId)
-        assertEquals(1, listOfIssueLight.size)
+        issueTrackingEngine.run {
+            assertNotNull(addUser(userName).let { userID ->
+                assertNotNull(addIssue(issueTitle).let {
+                    addIssue(issueTitle)
+                    assignUserToIssue(userID, it)
+                    assertNotNull(getIssues(userID = userID).run {
+                        assertEquals(userID, last().userId)
+                        assertEquals(1, size)
+                    })
+                })
+            }
+            )
+        }
     }
 
     @Test
     fun convert() {
         ISSUE.let {
-            issueTrackingEngine.convertIssueToIssueLight(it).run {
+            assertNotNull(issueTrackingEngine.convertIssueToIssueLight(it).run {
                 assertEquals(it.creationDate, creationDate)
                 assertEquals(it.ID, ID)
                 assertEquals(it.state, state)
                 assertEquals(it.title, title)
                 assertEquals(it.userID, userId)
-            }
+            })
         }
     }
 
     companion object {
-        //private const val userName = "Steve"
-        //private val USER = User(userName)
+        private const val userName = "Steve"
+        private val USER = User(userName)
         private val ISSUE = Issue("id", "username")
     }
-
 }

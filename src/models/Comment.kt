@@ -15,5 +15,6 @@ class Comment(
     val issueID: String,
     val creationDate: Date = java.util.Calendar.getInstance().time,
     val userID: String,
-    val comment: String? = null
+    val comment: String? = null,
+    val ID: String = UUID.randomUUID().toString()
 )
