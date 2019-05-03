@@ -122,10 +122,9 @@ private class TestKtIssueTrackingEngine {
     fun setIssueState() {
         issueTrackingEngine.run {
             addIssue(issueTitle).let {
-                setIssueState(it, State.IN_PROGRESS_STATE, issueComment)
+                setIssueState(it, State.IN_PROGRESS_STATE)
                 assertNotNull(getIssue(it)?.run {
                     assertEquals(State.IN_PROGRESS_STATE, state)
-                    assertEquals(issueComment, stateChangedComment)
                 })
             }
         }
@@ -185,12 +184,12 @@ private class TestKtIssueTrackingEngine {
     @Test
     fun getAndAddUser() {
         issueTrackingEngine.run {
-            addUser(userName).let {
-                getUser(it)?.run {
+            assertNotNull(addUser(userName).let {
+                assertNotNull(getUser(it)?.run {
                     assertEquals(it, ID)
                     assertEquals(userName, name)
-                }
-            }
+                })
+            })
         }
     }
 
